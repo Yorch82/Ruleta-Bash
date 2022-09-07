@@ -34,7 +34,7 @@ function martingala(){
 
   backup_bet=$initial_bet
   play_counter=1
-  juagadas_malas="[ "
+  juagadas_malas=""
 
   tput civis # Ocultamos cursor
   while true; do  
@@ -43,7 +43,7 @@ function martingala(){
     random_number="$(($RANDOM % 37))"    
 #    echo -e "${yellowColour}[+]${endColour}${grayColour} Ha salido el número${endColour}${blueColour} $random_number${endColour}"
     
-    if [ ! "$money" -le 0 ];then
+    if [ ! "$money" -lt 0 ];then
       if [ "$par_impar" == "par" ]; then
         # Apostar a pares
         if [ "$(($random_number % 2))" -eq 0 ]; then
@@ -69,7 +69,7 @@ function martingala(){
 #          echo -e "${yellowColour}[+]${endColour}${grayColour} Ahora mismo te quedas en${endColour}${blueColour} $money€${endColour}"
         fi
       else
-        # Apostar a imapres
+        # Apostar a impares
         if [ "$((random_number % 2))" -eq 1 ];then                            
 #          echo -e "${yellowColour}[+]${endColour}${greenColour} El número que has salido es impar, ¡Ganas!${endColour}"
           reward=$(($initial_bet*2))
@@ -88,10 +88,10 @@ function martingala(){
     else
       # Nos quedamos sin dinero
       echo -e "\n${redColour}[!] Te has quedado sin pasta cabrón${endColour}"
-      echo -e "${yellowColour}[+]${endColour}${grayColour} han habido un total de${endColour}${yellowColour} $play_counter${endColour}${grayColour} apuestas${endColour}"
+      echo -e "${yellowColour}[+]${endColour}${grayColour} han habido un total de${endColour}${yellowColour} $((play_counter-1))${endColour}${grayColour} apuestas${endColour}"
 
       echo -e "\n${yellowColour}[+]${endColour}${grayColour}A continuación se van a representar las malas jugadas consecutivas que han salido:${endColour}\n"
-      echo -e "${blueColour}$juagadas_malas${endColour}"
+      echo -e "${blueColour}[$juagadas_malas]${endColour}"
       tput cnorm && exit 0
     fi
 
