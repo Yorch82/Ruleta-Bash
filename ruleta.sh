@@ -110,28 +110,71 @@ function inverseLabrouchere(){
   echo -e "\n${yellowColour}[+]${endColour}${grayColour} Comenzamos con la secuencia${endColour}${greenColour} [${my_sequence[@]}]${endColour}"
 
   bet=$((${my_sequence[0]} + ${my_sequence[-1]}))
-
-  unset my_sequence[0]
-  unset my_sequence[-1]
-  my_sequence=(${my_sequence[@]})
-
-  echo -e "${yellowColour}[+]${endColour}${grayColour} Invertimos ${endColour}${yellowColour}$bet€${endColour}${grayColour} y nuestra secuencia se queda en ${endColour}${greenColour}[${my_sequence[@]}]${endColour}"
   
   tput civis
   while true; do
     random_number=$((RANDOM % 37))
+    if [ ! "$money" -lt 0 ]; then
+      money=$(($money-$bet))
+      
+      echo -e "${yellowColour}[+]${endColour}${grayColour} Invertimos ${endColour}${yellowColour}$bet€${endColour}"
+      echo -e "${yellowColour}[+]${endColour}${grayColour} Tenemos${endColour}${blueColour} $money€${endColour}"
 
-    echo -e "\n${yellowColour}[+]${endColour}${grayColour} Ha salido el número ${endColour}${blueColour}$random_number${endColour}"
-    
-    if [ "$par_impar" == "par" ]; then
-      if [ "$(($random_number % 2))" -eq 0 ]; then
-        echo -e "${yellowColour}[+]${endColour}${greenColour} El número es par, ¡Ganas!${endColour}"
-      else
-        echo -e "${redColour}[!] El número es impar, ¡Pierdes!${endColour}"
+      echo -e "\n${yellowColour}[+]${endColour}${grayColour} Ha salido el número ${endColour}${blueColour}$random_number${endColour}"
+      
+      if [ "$par_impar" == "par" ]; then
+        if [ "$(($random_number % 2))" -eq 0 ] && [ "$random_number" -ne 0 ]; then
+          echo -e "${yellowColour}[+]${endColour}${greenColour} El número es par, ¡Ganas!${endColour}"
+          reward=$(($bet*2))
+          let money+=$reward
+          echo -e "${yellowColour}[+]${endColour}${grayColour} Tienes${endColour}${blueColour} $money€${endColour}"
+
+          my_sequence+=($bet)
+          my_sequence=(${my_sequence[@]})
+
+          echo -e "${yellowColour}[+]${endColour}${grayColour} Nuestra nueva secuencia es${endColour}${greenColour} [${my_sequence[@]}]${endColour}"
+          if [ "${#my_sequence[@]}" -ne 1 ] && [ "${#my_sequence[@]}" -ne 0 ]; then
+            bet=$((${my_sequence[0]} + ${my_sequence[-1]}))
+          elif [ "${#my_sequence[@]}" -eq 1 ]; then 
+            bet=${my_sequence[0]}
+          else
+            echo -e "${redColour}[+] Hemos perdido nuestra secuencia${endColour}"
+            my_sequence=(1 2 3 4)
+            echo -e "${yellowColour}[+]${endColour}${grayColour} Reestablecemos la secuencia${endColour}${greenColour} [${my_sequence[@]}]${endColour}"
+            bet=$((${my_sequence[0]} + ${my_sequence[-1]}))
+          fi
+        elif [ "$((random_number % 2))" -eq 1 ] || [ "$random_number" -eq 0 ]; then
+          if [ "$((random_number % 2))" -eq 1 ]; then
+            echo -e "${redColour}[!] El número es impar, ¡Pierdes!${endColour}"
+          else
+            echo -e "${redColour}[!] ha salido el número 0, ¡Pierdes!${endColour}"
+
+          fi
+
+          unset my_sequence[0]
+          unset my_sequence[-1] 2>/dev/null
+
+          my_sequence=(${my_sequence[@]})
+
+          echo -e "${yellowColour}[+]${endColour}${grayColour} La secuencia se nos queda de la siguiente forma:${endColour}${greenColour} [${my_sequence[@]}]${endColour}"
+          if [ "${#my_sequence[@]}" -ne 1 ] && [ "${#my_sequence[@]}" -ne 0 ]; then
+            bet=$((${my_sequence[0]} + ${my_sequence[-1]}))
+          elif [ "${#my_sequence[@]}" -eq 1 ]; then
+            bet=${my_sequence[0]}
+          else
+            echo -e "${redColour}[+] Hemos perdido nuestra secuencia${endColour}"
+            my_sequence=(1 2 3 4)
+            echo -e "${yellowColour}[+]${endColour}${grayColour} Reestablecemos la secuencia${endColour}${greenColour} [${my_sequence[@]}]${endColour}"
+            bet=$((${my_sequence[0]} + ${my_sequence[-1]}))
+          fi
+        fi
       fi
+    else
+      # Nos quedamos sin dinero
+      echo -e "\n${redColour}[!] Te has quedado sin pasta cabrón${endColour}"
+      tput cnorm && exit 0
     fi
-
-    sleep 10
+    sleep 1
   done
 
 }
